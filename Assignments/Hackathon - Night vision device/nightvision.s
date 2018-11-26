@@ -1,0 +1,299 @@
+   AREA     NIGHTVISION, CODE, READONLY
+     IMPORT printMsg
+	 export __main	 
+	 ENTRY 
+DrawCrossWire PROC
+	MOV R0,#160 ;ORIGIN X COOD
+	MOV R1,#120 ;ORIGIN Y COOD
+	MOV R2,#0 ;Y COOD
+	MOV R5,#0 ;X COOD
+	MOV R3,#319 ; X MAX
+	MOV R4,#239 ; Y MAX
+	MOV R6,#0x20000000
+ 
+	
+LOOP_X  CMP R5,R3 ;X COOD
+		STR R5,[R6],#2;
+		STR R1,[R6],#2
+		ADDLT R5,R5,#1
+		BLT LOOP_X
+		
+LOOP_Y CMP R2,R4 ;Y COOD
+	   BGT stop
+	   STR R0,[R6],#2
+	   STR R2,[R6],#2
+	   ADDLT R2,R2,#1
+	   BLT LOOP_Y
+stop
+	ENDP
+
+
+ENCRYPT PROC
+	MOV R7,#0
+	MOV R8,#15
+	
+	ADD R9,R6,#150  ;ORIGINAL DATA
+	
+	
+LOOP_GEN	CMP R7,R8	;IMAGE DATA GENERATION
+			STR R7,[R9],#2
+			ADDLT R7,R7,#1
+			BLT LOOP_GEN
+	
+	MOV R7,#0
+	ADD R0,R6,#300  ;ENCRYTED DATA
+	ADD R9,R6,#150  ;ORIGINAL DATA	
+	MOV R10,#0 ;IV ; Ci
+	MOV R11,#0xFFFFFF; KEY
+
+LOOP_EN		CMP R7,R8
+			BGT stop1
+			LDR R12,[R9],#2  ;R12 = Pi
+			EOR R12,R10,R12	 ;R12 = Pi xor Ci
+            AND R10,R12,R11	 ;R10 = Ki(Pi xor Ci) = Ci
+			STR R10,[R0],#2
+			ADDLT R7,R7,#1
+			BLT LOOP_EN		
+stop1
+	ENDP
+	
+
+
+
+ENCODE PROC
+		MOV R7,#0
+		ADD R9,R6,#300  ;ENCRYT DATA
+		ADD R8,R6,#450  ;ENCODED DATA
+LOOP_ENCODE		CMP R7,#15
+				BGT stop3
+				LDR R1,[R9],#2 ;1 BYTE
+				
+				AND R2,R1,#0x000F;lower nibble
+				AND R3,R1,#0x00F0
+				LSR R3,R3,#4;higher nibble
+				
+				;LOWER NIBBLE
+				AND R4,R2,#0X01 ;0	= 4 of en 			
+				AND R5,R2,#0X02 ;1 = 2 of en
+				LSR R5,R5,#1
+				AND R10,R2,#0X04 ;2 = 1 of en
+				LSR R10,R10,#2
+				AND R11,R2,#0X08 ;3 = 0 of en
+				LSR R11,R11,#3
+				
+				EOR R1,R4,R5
+				EOR R1,R1,R11 ; P1 = 7TH BIT OF ENCODED DATA
+				EOR R2,R4,R10
+				EOR R2,R2,R11 ; P2 = 6TH BIT OF ENCODED DATA
+				EOR R12,R5,R10
+				EOR R12,R12,R11 ; P3 = 4TH BIT OF ENCODED DATA
+				LSL R1,R1,#6 ;P1
+				LSL R2,R2,#5 ;P2
+				LSL R11,R11,#4 ;D1
+				LSL R12,R12,#3 ;P3
+				LSL R10,R10,#2 ;D2
+				LSL R5,R5,#1 ;D3 , D4= R4
+				
+				ADD R4,R4,R1
+				ADD R4,R4,R2
+				ADD R4,R4,R11
+				ADD R4,R4,R12
+				ADD R4,R4,R10
+				ADD R4,R4,R5				
+				
+				STR R4,[R8],#1
+				
+				;HIGHER NIBBLE
+				AND R4,R3,#0X01 ;0	= 4 of en 			
+				AND R5,R3,#0X02 ;1 = 2 of en
+				LSR R5,R5,#1
+				AND R10,R3,#0X04 ;2 = 1 of en
+				LSR R10,R10,#2
+				AND R11,R3,#0X08 ;3 = 0 of en
+				LSR R11,R11,#3
+				
+				EOR R1,R4,R5
+				EOR R1,R1,R11 ; P1 = 7TH BIT OF ENCODED DATA
+				EOR R3,R4,R10
+				EOR R3,R3,R11 ; P2 = 6TH BIT OF ENCODED DATA
+				EOR R12,R5,R10
+				EOR R12,R12,R11 ; P3 = 4TH BIT OF ENCODED DATA
+				LSL R1,R1,#6 ;P1
+				LSL R3,R3,#5 ;P2
+				LSL R11,R11,#4 ;D1
+				LSL R12,R12,#3 ;P3
+				LSL R10,R10,#2 ;D2
+				LSL R5,R5,#1 ;D3 , D4= R4
+				
+				ADD R4,R4,R1
+				ADD R4,R4,R3
+				ADD R4,R4,R11
+				ADD R4,R4,R12
+				ADD R4,R4,R10
+				ADD R4,R4,R5				
+				
+				STR R4,[R8],#1
+				
+				ADD R7,R7,#1
+				B LOOP_ENCODE	
+stop3
+	ENDP
+
+DECODE PROC
+	ADD R0,R6,#450  ;ENCODED DATA
+	MOV R1,#0
+	ADD R9,R6,#700 ;DECODED DATA
+LOOP_DECODE		CMP R1,#15
+				BGT.w stop4
+				LDR R12,[R0],#2 ; ENCODED DATA 2 bytes
+				
+				AND R2,R12,#0x00FF;lower byte
+				AND R12,R12,#0xFF00
+				LSR R12,R12,#4;higher byte
+				
+				;lower byte
+				AND R4,R2,#0X01 ;7				
+				AND R5,R2,#0X02 ;6 
+				LSR R5,R5,#1
+				AND R10,R2,#0X04 ;5
+				LSR R10,R10,#2
+				AND R11,R2,#0X08 ;4
+				LSR R11,R11,#3
+				AND R3,R2,#0X10 ;3
+				LSR R3,R3,#4
+				AND R7,R2,#0X20 ;2
+				LSR R7,R7,#5
+				AND R8,R2,#0X40 ;1
+				LSR R8,R8,#6
+				
+				EOR R8,R8,R3
+				EOR R8,R8,R10
+				EOR R8,R8,R4 ;R8 = P1
+				
+				EOR R7,R7,R3
+				EOR R7,R7,R5
+				EOR R7,R7,R4 ; R7 = P2
+				
+				EOR R11,R11,R10
+				EOR R11,R11,R5
+				EOR R11,R11,R4 ; R11= P3
+				
+				LSL R8,R8,#2 ;P1
+				LSL R7,R7,#1 ;P2
+				ADD R11,R11,R8
+				ADD R11,R11,R7;R11= BINARY OF POSITION OF ERROR BIT
+				
+				MOV R2,#1
+				CMP R11,#3
+				SUBEQ R3,R2,R3 ;4
+				
+				CMP R11,#5
+				SUBEQ R10,R2,R10 ;3
+				
+				CMP R11,#6
+				SUBEQ R5,R2,R5 ;2
+				
+				CMP R11,#7
+				SUBEQ R4,R2,R4 ;1
+				
+				LSL R3,R3,#3
+				LSL R10,R10,#2
+				LSL R5,R5,#1
+				ADD R4,R4,R5
+				ADD R4,R4,R10
+				ADD R2,R4,R3 ;DECODED 4BITS
+				
+				
+				;higher byte
+				AND R4,R12,#0X01 ;7				
+				AND R5,R12,#0X02 ;6 
+				LSR R5,R5,#1
+				AND R10,R12,#0X04 ;5
+				LSR R10,R10,#2
+				AND R11,R12,#0X08 ;4
+				LSR R11,R11,#3
+				AND R3,R12,#0X10 ;3
+				LSR R3,R3,#4
+				AND R7,R12,#0X20 ;2
+				LSR R7,R7,#5
+				AND R8,R12,#0X40 ;1
+				LSR R8,R8,#6
+				
+				EOR R8,R8,R3
+				EOR R8,R8,R10
+				EOR R8,R8,R4 ;R8 = P1
+				
+				EOR R7,R7,R3
+				EOR R7,R7,R5
+				EOR R7,R7,R4 ; R7 = P2
+				
+				EOR R11,R11,R10
+				EOR R11,R11,R5
+				EOR R11,R11,R4 ; R11= P3
+				
+				LSL R8,R8,#2 ;P1
+				LSL R7,R7,#1 ;P2
+				ADD R11,R11,R8
+				ADD R11,R11,R7;R11= BINARY OF POSITION OF ERROR BIT
+				
+				MOV R2,#1
+				CMP R11,#3
+				SUBEQ R3,R2,R3 ;4
+				
+				CMP R11,#5
+				SUBEQ R10,R2,R10 ;3
+				
+				CMP R11,#6
+				SUBEQ R5,R2,R5 ;2
+				
+				CMP R11,#7
+				SUBEQ R4,R2,R4 ;1
+				
+				LSL R3,R3,#3
+				LSL R10,R10,#2
+				LSL R5,R5,#1
+				ADD R4,R4,R5
+				ADD R4,R4,R10
+				ADD R4,R4,R3 ;DECODED 4BITS
+				
+				LSL R4,R4,#4
+				AND R2,R2,R4
+				ADD R1,R1,#1
+				STR R2,[R9],#1
+				
+stop4
+	ENDP
+	
+	
+DECRYPT PROC
+	MOV R7,#0
+	MOV R8,#15
+	MOV R11,#0xFFFFFF; KEY
+	ADD R0,R6,#700    ;DECODED DATA
+	ADD R4,R6,#950	 ;DECRYTED DATA
+	MOV R2,#0 ; Ci
+	MOV R3,#0 ;IV ;Ci-1
+	
+
+LOOP_DE		CMP R7,R8
+			BGT stop2
+			LDR R2,[R0],#2  ;R15 = Ci
+			AND R10,R2,R11	;R10 = K.Ci
+			EOR R1,R10,R3	;R1= K.Ci xor Ci-1
+			STR R1,[R4],#2
+			MOV R3,R2 ; Ci-1  <- Ci
+			
+			ADD R7,R7,#1
+			B LOOP_DE		
+stop2
+	ENDP
+		
+__main  function	
+		BL DrawCrossWire
+		BL ENCRYPT
+		BL ENCODE
+		BL DECODE
+		BL DECRYPT
+STOP B STOP
+	ENDFUNC	
+	END
