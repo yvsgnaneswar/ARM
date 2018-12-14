@@ -1,5 +1,7 @@
-     area     appcode, CODE, READONLY
-	 IMPORT printMsg             
+    area     appcode, CODE, READONLY
+	IMPORT printMsg 
+	IMPORT	printNewLine
+	EXPORT __exponential
 __exponential function
 	MOV R1,#1         ;i
 	VLDR.F32 S0,=1.0  ;required value 
@@ -21,17 +23,13 @@ LOOP VMUL.F32 S1,S1,S2   ;intialising series
 LP  VADD.F32 S6,S4,S0
 	VDIV.F32 S6,S0,S6
 	BX lr
-ENDFUNC
-	export __main 
-	ENTRY 
-__main  function  
-   ; outputs S25-AND, S26-OR, S27-NAND, S28-NOR, S29-XOR, S30-XNOR, S31-NOT
-   ; using S7,S8,S9 for inputs
-   VLDR.F32 S7, =1.0 ; input1
-   VLDR.F32 S8, =0.0 ; input2
-   VLDR.F32 S9, =1.0 ; input3
-   VLDR.F32 S10, =1.0 ; bias
+	LTORG
+    ENDFUNC
+	
+	EXPORT __myand
+__myand function
    ; AND weights
+   MOV r5,r14
    VLDR.F32 S11, =2.0
    VLDR.F32 S12, =2.0
    VLDR.F32 S13, =2.0
@@ -50,8 +48,16 @@ __main  function
    VCVTR.S32.F32 S25,S6
    VMOV.F32 R0,S25
    BL printMsg
+   BL printNewLine
+   MOV r14,r5
+   BX lr
+   ;LTORG
+   ENDFUNC
    
+   EXPORT __myor
+__myor function
    ; OR weights
+   MOV r5,r14
    VLDR.F32 S11, =2.0
    VLDR.F32 S12, =2.0
    VLDR.F32 S13, =2.0
@@ -70,8 +76,16 @@ __main  function
    VCVTR.S32.F32 S26,S6
    VMOV.F32 R0,S26
    BL printMsg
+   BL printNewLine
+   MOV r14,r5
+   BX lr
+   LTORG
+   ENDFUNC
    
+   EXPORT __mynand
+__mynand function
    ; NAND weights
+   MOV r5,r14
    VLDR.F32 S11, =-2.0
    VLDR.F32 S12, =-2.0
    VLDR.F32 S13, =-2.0
@@ -90,8 +104,16 @@ __main  function
    VCVTR.S32.F32 S27,S6
    VMOV.F32 R0,S27
    BL printMsg
+   BL printNewLine
+   MOV r14,r5
+   BX lr
+   LTORG
+   ENDFUNC
    
+   EXPORT __mynor
+__mynor function
    ; NOR weights
+   MOV r5,r14
    VLDR.F32 S11, =-2.0
    VLDR.F32 S12, =-2.0
    VLDR.F32 S13, =-2.0
@@ -110,8 +132,16 @@ __main  function
    VCVTR.S32.F32 S28,S6
    VMOV.F32 R0,S28
    BL printMsg
+   BL printNewLine
+   MOV r14,r5
+   BX lr
+   LTORG
+   ENDFUNC
    
+   EXPORT __myxor
+__myxor function
    ; XOR weights
+   MOV r5,r14
    VLDR.F32 S11, =-2.0
    VLDR.F32 S12, =2.0
    VLDR.F32 S13, =-2.0
@@ -204,8 +234,16 @@ __main  function
    VCVTR.S32.F32 S29,S6
    VMOV.F32 R0,S29
    BL printMsg
+   BL printNewLine
+   MOV r14,r5
+   BX lr
+   LTORG
+   ENDFUNC
    
+   EXPORT __myxnor
+__myxnor function
    ; XNOR weights
+   MOV r5,r14
    VLDR.F32 S11, =2.0
    VLDR.F32 S12, =-2.0
    VLDR.F32 S13, =2.0
@@ -305,8 +343,16 @@ __main  function
    VCVTR.S32.F32 S30,S6
    VMOV.F32 R0,S30
    BL printMsg
+   BL printNewLine
+   MOV r14,r5
+   BX lr
+   ;LTORG
+   ENDFUNC
    
+   EXPORT __mynot
+__mynot function
    ;NOT weight - S11,S14
+   MOV r5,r14
    VLDR.F32 S11, =-2.0
    VLDR.F32 S14, =1.0
    
@@ -319,6 +365,813 @@ __main  function
    VCVTR.S32.F32 S31,S6
    VMOV.F32 R0,S31
    BL printMsg
+   BL printNewLine
+   MOV r14,r5
+   BX lr
+   LTORG
+   ENDFUNC
+
+	export __main 
+	ENTRY 
+__main  function  
+   ; outputs S25-AND, S26-OR, S27-NAND, S28-NOR, S29-XOR, S30-XNOR, S31-NOT
+   ; using S7,S8,S9 for inputs
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myand
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myand
+   ;BL printNewLine
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myand
+   ;BL printNewLine
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myand
+   ;BL printNewLine
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myand
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myand
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myand
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myand
+   BL printNewLine
+   
+
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myor
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myor
+   ;BL printNewLine
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myor
+   ;BL printNewLine
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myor
+   ;BL printNewLine
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myor
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myor
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myor
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myor
+   BL printNewLine
+   
+   
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __mynand
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __mynand
+   ;BL printNewLine
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   LTORG
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __mynand
+   ;BL printNewLine
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   LTORG
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   LTORG
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __mynand
+   LTORG
+   ;BL printNewLine
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __mynand
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   LTORG
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __mynand
+   LTORG
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __mynand
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   LTORG
+   VLDR.F32 S10, =1.0 ; bias
+   BL __mynand
+   BL printNewLine
+   LTORG
+   
+   
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   LTORG
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   LTORG
+   VLDR.F32 S10, =1.0 ; bias
+   BL __mynor
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   LTORG
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __mynor
+   LTORG
+   ;BL printNewLine
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   LTORG
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   LTORG
+   VLDR.F32 S10, =1.0 ; bias
+   BL __mynor
+   ;BL printNewLine
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   LTORG
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __mynor
+   ;BL printNewLine
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   LTORG
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __mynor
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   LTORG
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __mynor
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __mynor
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __mynor
+   BL printNewLine
+   
+   
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myxor
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myxor
+   ;BL printNewLine
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myxor
+   ;BL printNewLine
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myxor
+   ;BL printNewLine
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myxor
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myxor
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myxor
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myxor
+   BL printNewLine
+   
+   
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myxnor
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myxnor
+   ;BL printNewLine
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myxnor
+   ;BL printNewLine
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myxnor
+   ;BL printNewLine
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myxnor
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =0.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myxnor
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =0.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myxnor
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S8, =1.0 ; input2
+   VCVTR.S32.F32 S22,S8
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S9, =1.0 ; input3
+   VCVTR.S32.F32 S22,S9
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __myxnor
+   BL printNewLine
+   
+   
+   
+   VLDR.F32 S7, =0.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __mynot
+   
+   VLDR.F32 S7, =1.0 ; input1
+   VCVTR.S32.F32 S22,S7
+   VMOV.F32 R0,S22
+   BL printMsg
+   VLDR.F32 S10, =1.0 ; bias
+   BL __mynot
+   
+   ;output format
+   ;1st block of truth table- AND
+   ;2nd block of truth table- OR
+   ;3rd block of truth table- NAND
+   ;4th block of truth table- NOR
+   ;5th block of truth table- XOR
+   ;6th block of truth table- XNOR
+   ;7th block of truth table- NOT
+   ;first three columns are inputs and fourth column is ouput for AND,OR,NAND,NOT,XOR,XNOR
+   ;first column is input and second column is output for NOT
 fullstop    B  fullstop ; stop program    
      endfunc
      end 
